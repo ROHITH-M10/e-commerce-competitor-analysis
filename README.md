@@ -141,6 +141,7 @@ This project is a comprehensive **E-commerce Competitor Strategy Dashboard** des
   <img src="./Screenshots/2.png" alt="Screenshot 2" width="400" style="margin: 10px;">
   <img src="./Screenshots/3.png" alt="Screenshot 3" width="400" style="margin: 10px;">
   <img src="./Screenshots/4.png" alt="Screenshot 4" width="400" style="margin: 10px;">
+  <img src="./Screenshots/5.png" alt="Screenshot 5" width="400" style="margin: 10px;">
 </div>
 
 
