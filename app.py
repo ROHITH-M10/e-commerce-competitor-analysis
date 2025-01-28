@@ -90,7 +90,7 @@ def forecast_discounts_arima(data,future_days = 5):
     forecast = model_fit.forecast(steps=future_days)
     future_dates = pd.date_range(
         start=discount_series.index[-1] + pd.Timedelta(days=1), periods=future_days
-    )
+    ).date
 
     forecast_df = pd.DataFrame({'date': future_dates, 'predicted_discount': forecast})
     forecast_df.set_index('date', inplace=True)
