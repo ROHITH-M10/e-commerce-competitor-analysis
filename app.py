@@ -76,6 +76,9 @@ def forecast_discounts_arima(data,future_days = 5):
     data = data.dropna(subset=['discount'])
 
     discount_series = data['discount']
+
+    # print(discount_series)
+    
     if not isinstance(data.index, pd.DatetimeIndex):
         try:
             data.index = pd.to_datetime(data.index)
@@ -191,6 +194,7 @@ reviews_data = load_reviews_data()
 product_data = competitor_data[competitor_data['product_name'] == selected_product]
 product_reviews = reviews_data[reviews_data['product_name'] == selected_product]
 
+
 st.header(f"Competitor Analysis for {selected_product}")
 st.subheader("Competitor Data")
 st.table(product_data.tail(5))
@@ -214,12 +218,21 @@ else:
 
 
 
-# Preprocessing data
+# Convert 'date' to datetime using the correct format (DD-MM-YYYY)
+product_data['date'] = pd.to_datetime(product_data['date'], format='%d-%m-%Y', errors='coerce')
 
-product_data['date'] = pd.to_datetime(product_data['date'], errors='coerce')
+# Drop rows with invalid/missing dates
 product_data = product_data.dropna(subset=['date'])
+
+# Set 'date' as the index
 product_data.set_index("date", inplace=True)
+
+# Sort the data by date
 product_data = product_data.sort_index()
+
+print("==========")
+print(product_data)
+
 
 product_data['discount'] = pd.to_numeric(product_data['discount'], errors='coerce')
 product_data = product_data.dropna(subset=['discount'])
