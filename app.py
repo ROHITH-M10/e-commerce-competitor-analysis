@@ -102,7 +102,7 @@ def send_to_slack(data):
 
     payload = {"text": data}
     response = requests.post(
-        SLACK_WEBHOOK,
+        SLACK_WEBHOOK_API_KEY,
         data=json.dumps(payload),
         headers={"Content-Type": "application/json"},
     )
