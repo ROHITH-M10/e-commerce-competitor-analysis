@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.express as px
 import requests
 import streamlit as st
-# from openai import AzureOpenAI
+from openai import AzureOpenAI
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from statsmodels.tsa.arima.model import ARIMA
@@ -11,9 +11,12 @@ from datetime import datetime
 import json
 
 
-GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
-SLACK_WEBHOOK_API_KEY = st.secrets["SLACK_WEBHOOK_API_KEY"]
+from API_KEY import GROQ_API_KEY
+from API_KEY import SLACK_WEBHOOK_API_KEY
 
+
+API_KEY = GROQ_API_KEY # Groq API Key
+SLACK_WEBHOOK = SLACK_WEBHOOK_API_KEY # Slack Webhook url
 
 def truncate_text(text, max_length=512):
     return text[:max_length] 
@@ -102,26 +105,27 @@ def send_to_slack(data):
 
     payload = {"text": data}
     response = requests.post(
-        SLACK_WEBHOOK_API_KEY,
+        SLACK_WEBHOOK,
         data=json.dumps(payload),
         headers={"Content-Type": "application/json"},
     )
 
 
-def generate_strategy_recommendation(product_name, competitor_data, sentiment):
+def generate_strategy_recommendation(product_name, competitor_data, predicted_discounts, sentiment):
     # generate strategy recommendation using an LLM model
     date = datetime.now()
     prompt = f"""
     You are a highly skilled business strategist specilizing in e-commerce. 
     Based on the following details, 
-    suggest actionable strategies to optimize pricing, 
+    suggest actionable strategies to optimize pricing (data availabel is in rupees) 
     promotions and customer satisfaction 
     for the selected product
 
     1. **Product Name**: {product_name}
 
-    2. **Competitor Data** (inclusing current prices, discounts and predicted discounts):
+    2. **Competitor Data** (including current prices, discounts for last 5 days and predicted discount for next 5 days):
     {competitor_data}
+    **Predicted Discounts**: {predicted_discounts}
 
     3. **Sentiment Analysis**: {sentiment}
 
@@ -150,7 +154,7 @@ def generate_strategy_recommendation(product_name, competitor_data, sentiment):
         "temperature" : 0
     }
 
-    headers = {"Context-Type": "application/json", "Authorization": f"Bearer {GROQ_API_KEY}"}
+    headers = {"Context-Type": "application/json", "Authorization": f"Bearer {API_KEY}"}
 
     res = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
@@ -161,6 +165,7 @@ def generate_strategy_recommendation(product_name, competitor_data, sentiment):
     print("API Response:", res)
 
     res = res.json()
+    print("Response:", res)
     
 
     response = res['choices'][0]['message']['content']
@@ -233,7 +238,9 @@ print(product_data)
 
 product_data['discount'] = pd.to_numeric(product_data['discount'], errors='coerce')
 product_data = product_data.dropna(subset=['discount'])
-
+# last 5 days 
+print("last 5 days")
+print(product_data[['price', 'discount']][-5:])
 # Forecasting future discounts
 product_data_with_predictions = forecast_discounts_arima(product_data)
 
@@ -245,7 +252,8 @@ st.table(product_data_with_predictions.tail(10))
 
 recommendations = generate_strategy_recommendation(
     selected_product,
-    product_data_with_predictions, 
+    product_data[['price', 'discount']][-5:],
+    product_data_with_predictions,
     sentiments if not product_reviews.empty else "No reviews data available"
     )
 
