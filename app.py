@@ -117,7 +117,7 @@ def generate_strategy_recommendation(product_name, competitor_data, predicted_di
     prompt = f"""
     You are a highly skilled business strategist specilizing in e-commerce. 
     Based on the following details, 
-    suggest actionable strategies to optimize pricing (data availabel is in rupees) 
+    suggest actionable strategies to optimize pricing (data is available in rupees)
     promotions and customer satisfaction 
     for the selected product
 
