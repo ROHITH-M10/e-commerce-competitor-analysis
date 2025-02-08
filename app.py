@@ -2,6 +2,7 @@ import pandas as pd
 import plotly.express as px
 import requests
 import streamlit as st
+# from openai import AzureOpenAI
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from statsmodels.tsa.arima.model import ARIMA
@@ -10,12 +11,9 @@ from datetime import datetime
 import json
 
 
-from API_KEY import GROQ_API_KEY
-from API_KEY import SLACK_WEBHOOK_API_KEY
+GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
+SLACK_WEBHOOK_API_KEY = st.secrets["SLACK_WEBHOOK_API_KEY"]
 
-
-API_KEY = GROQ_API_KEY # Groq API Key
-SLACK_WEBHOOK = SLACK_WEBHOOK_API_KEY # Slack Webhook url
 
 def truncate_text(text, max_length=512):
     return text[:max_length] 
