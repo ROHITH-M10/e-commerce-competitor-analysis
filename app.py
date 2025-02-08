@@ -102,7 +102,7 @@ def send_to_slack(data):
 
     payload = {"text": data}
     response = requests.post(
-        SLACK_WEBHOOK,
+        SLACK_WEBHOOK_API_KEY,
         data=json.dumps(payload),
         headers={"Content-Type": "application/json"},
     )
@@ -151,7 +151,7 @@ def generate_strategy_recommendation(product_name, competitor_data, predicted_di
         "temperature" : 0
     }
 
-    headers = {"Context-Type": "application/json", "Authorization": f"Bearer {API_KEY}"}
+    headers = {"Context-Type": "application/json", "Authorization": f"Bearer {GROQ_API_KEY}"}
 
     res = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
