@@ -2,7 +2,6 @@ import pandas as pd
 import plotly.express as px
 import requests
 import streamlit as st
-# from openai import AzureOpenAI
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from statsmodels.tsa.arima.model import ARIMA
