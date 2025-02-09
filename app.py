@@ -34,22 +34,22 @@ def analyze_sentiment(reviews):
     sentiment_pipeline = pipeline("sentiment-analysis")
     return sentiment_pipeline(reviews)
 
-def train_predictive_model(data):
-    data['discount'] = data['discount'].str.replace('%', '').astype(float)
-    data['price'] = data['price'].str.replace('$', '').astype(float)
-    data['predicted_discount'] = data['discount'] + (data['price'] * 0.05).round(2)
+# def train_predictive_model(data):
+#     data['discount'] = data['discount'].str.replace('%', '').astype(float)
+#     data['price'] = data['price'].str.replace('$', '').astype(float)
+#     data['predicted_discount'] = data['discount'] + (data['price'] * 0.05).round(2)
 
-    X = data[['price', 'discount']]
-    y = data['predicted_discount']
-    # print(X)
+#     X = data[['price', 'discount']]
+#     y = data['predicted_discount']
+#     # print(X)
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-        )
+#     X_train, X_test, y_train, y_test = train_test_split(
+#         X, y, test_size=0.2, random_state=42
+#         )
     
-    model = RandomForestRegressor(random_state=42)
-    model.fit(X_train, y_train)
-    return model
+#     model = RandomForestRegressor(random_state=42)
+#     model.fit(X_train, y_train)
+#     return model
 
 import numpy as np
 import pandas as pd
