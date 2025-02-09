@@ -1,18 +1,18 @@
-import pandas as pd
-import plotly.express as px
-import requests
-import streamlit as st
-# from openai import AzureOpenAI
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from statsmodels.tsa.arima.model import ARIMA
-from transformers import pipeline
-from datetime import datetime
-import json
+import pandas as pd  # For handling dataframes and CSV files
+import plotly.express as px  # For visualizing data with interactive plots
+import requests  # For making HTTP requests (e.g., sending Slack messages, API calls)
+import streamlit as st  # For creating the interactive dashboard
+# from openai import AzureOpenAI  # (Commented out) for using OpenAI models via Azure
+from sklearn.ensemble import RandomForestRegressor  # Machine learning model for price prediction
+from sklearn.model_selection import train_test_split  # Splitting data into training and testing
+from statsmodels.tsa.arima.model import ARIMA  # ARIMA model for time series forecasting
+from transformers import pipeline  # For sentiment analysis using NLP models
+from datetime import datetime  # Handling dates and timestamps
+import json  # Handling JSON data
 
 
-GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
-SLACK_WEBHOOK_API_KEY = st.secrets["SLACK_WEBHOOK_API_KEY"]
+GROQ_API_KEY = st.secrets["GROQ_API_KEY"] # Groq API Key
+SLACK_WEBHOOK_API_KEY = st.secrets["SLACK_WEBHOOK_API_KEY"] # Slack Webhook url
 
 
 def truncate_text(text, max_length=512):
@@ -21,20 +21,16 @@ def truncate_text(text, max_length=512):
 def load_competitor_data():
     # load competitor data from competitor_data.csv
     data = pd.read_csv("competitor_data.csv")
-    print("competitor data loaded")
-    print(data.head())
     return data
 
 def load_reviews_data():
     # load reviews data from reviews_data.csv
     reviews = pd.read_csv("reviews.csv")
-    print("reviews data loaded")
-    print(reviews.head())
     return reviews
 
 
 def analyze_sentiment(reviews):
-    # analyze sentiment of text
+    """Perform sentiment analysis on customer reviews using a pre-trained NLP model."""
     sentiment_pipeline = pipeline("sentiment-analysis")
     return sentiment_pipeline(reviews)
 
@@ -45,7 +41,7 @@ def train_predictive_model(data):
 
     X = data[['price', 'discount']]
     y = data['predicted_discount']
-    print(X)
+    # print(X)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
@@ -63,19 +59,20 @@ def forecast_discounts_arima(data,future_days = 5):
     Forcast future discounts using ARIMA model
     :param data: pandas DataFrame historical discount data with datetime index
     :param future_days: int number of days to forecast
-    :return: pandas DataFrame with historical and forecasted discount data
+    :return: pandas DataFrame with forecasted discount data
     """
 
     data = data.sort_index()
-    print(product_data.index)
-
+    # print(product_data.index)
+    # Convert to numeric
     data['discount'] = pd.to_numeric(data['discount'], errors='coerce')
+    # Drop rows with missing discount values
     data = data.dropna(subset=['discount'])
 
     discount_series = data['discount']
 
     # print(discount_series)
-    
+    # Check if index is datetime
     if not isinstance(data.index, pd.DatetimeIndex):
         try:
             data.index = pd.to_datetime(data.index)
@@ -83,15 +80,22 @@ def forecast_discounts_arima(data,future_days = 5):
             raise ValueError(
                 "Index could not be converted to datetime"
                 ) from e
-    
+
+    # Train an ARIMA model (5,1,0 parameters indicate autoregressive, differencing, moving average)
     model = ARIMA(discount_series, order=(5,1,0))
     model_fit = model.fit()
 
+    # Forecast future discounts
     forecast = model_fit.forecast(steps=future_days)
+    # convet to int and round off
+    forecast = np.round(forecast).astype(int)
+
+    # Generate future dates
     future_dates = pd.date_range(
         start=discount_series.index[-1] + pd.Timedelta(days=1), periods=future_days
     ).date
 
+    # Create a DataFrame with forecasted data
     forecast_df = pd.DataFrame({'date': future_dates, 'predicted_discount': forecast})
     forecast_df.set_index('date', inplace=True)
 
@@ -111,6 +115,8 @@ def send_to_slack(data):
 def generate_strategy_recommendation(product_name, competitor_data, predicted_discounts, sentiment):
     # generate strategy recommendation using an LLM model
     date = datetime.now()
+
+    # prompt for the model
     prompt = f"""
     You are a highly skilled business strategist specilizing in e-commerce. 
     Based on the following details, 
@@ -153,18 +159,19 @@ def generate_strategy_recommendation(product_name, competitor_data, predicted_di
 
     headers = {"Context-Type": "application/json", "Authorization": f"Bearer {GROQ_API_KEY}"}
 
+    # make API request to Groq
     res = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         data = json.dumps(data),
         headers=headers,
     )
 
-    print("API Response:", res)
+    # print("API Response:", res)
 
     res = res.json()
-    print("Response:", res)
+    # print("Response:", res)
     
-
+    # extract response from the API
     response = res['choices'][0]['message']['content']
     return response
 
@@ -178,6 +185,7 @@ st.set_page_config(page_title="E-commerce Competitor Strategy Dashboard", layout
 st.title("E-commerce Competitor Strategy Dashboard")
 st.sidebar.header("Select a Product")
 
+# List of products to choose from
 products = [
     "boAt Rockerz 255",
     "Oneplus Bullets Z2",
@@ -185,19 +193,32 @@ products = [
     "JBL Tune 215BT"
 ]
 
+# Select a product to analyze
 selected_product = st.sidebar.selectbox("Select a Product to analyze", products)
 
+# Load data
 competitor_data = load_competitor_data()
 reviews_data = load_reviews_data()
 
+# Filter data for the selected product
 product_data = competitor_data[competitor_data['product_name'] == selected_product]
 product_reviews = reviews_data[reviews_data['product_name'] == selected_product]
+
+print("++++++++")
+print(product_data.shape)
+
+
+# print("++++++++")
+# print(product_data.tail())
 
 
 st.header(f"Competitor Analysis for {selected_product}")
 st.subheader("Competitor Data")
+
+# Display the last 5 rows of the competitor data
 st.table(product_data.tail(5))
 
+# Sentiment Analysis of Customer Reviews
 if not product_reviews.empty:
     product_reviews["reviews"] = product_reviews["reviews"].apply(
         lambda x: truncate_text(x,512)
@@ -209,18 +230,24 @@ if not product_reviews.empty:
     st.subheader("Customer Sentiment Analysis")
     sentiment_df = pd.DataFrame(sentiments)
 
+    # Plot the sentiment analysis results
     fig = px.bar(sentiment_df, x='label', title='Sentiment Analysis Results')
     st.plotly_chart(fig)
 
 else:
     st.write("No reviews data available for this product.")
 
+# print("++++++++")
+# print(product_data)
+
+# Convert 'date' to datetime using the correct format
+product_data['date'] = pd.to_datetime(product_data['date'], format='%Y-%m-%d')
+# print("++++++++")
+# print(product_data)
 
 
-# Convert 'date' to datetime using the correct format (DD-MM-YYYY)
-product_data['date'] = pd.to_datetime(product_data['date'], format='%d-%m-%Y', errors='coerce')
 
-# Drop rows with invalid/missing dates
+# Drop rows with missing dates
 product_data = product_data.dropna(subset=['date'])
 
 # Set 'date' as the index
@@ -229,24 +256,21 @@ product_data.set_index("date", inplace=True)
 # Sort the data by date
 product_data = product_data.sort_index()
 
-print("==========")
-print(product_data)
 
-
+# Forecasting future discounts
 product_data['discount'] = pd.to_numeric(product_data['discount'], errors='coerce')
 product_data = product_data.dropna(subset=['discount'])
-# last 5 days 
-print("last 5 days")
-print(product_data[['price', 'discount']][-5:])
+
 # Forecasting future discounts
 product_data_with_predictions = forecast_discounts_arima(product_data)
 
 
 
-st.subheader("Competitor Current and Predicted Discounts")
-st.table(product_data_with_predictions.tail(10))
+st.subheader("Competitor Predicted Discounts")
+# Display the last 5 rows of the competitor data with predicted discounts
+st.table(product_data_with_predictions.tail(5))
 
-
+# Use the data to train a predictive model
 recommendations = generate_strategy_recommendation(
     selected_product,
     product_data[['price', 'discount']][-5:],
@@ -254,6 +278,8 @@ recommendations = generate_strategy_recommendation(
     sentiments if not product_reviews.empty else "No reviews data available"
     )
 
+# Display the strategy recommendations
 st.subheader("Strategy Recommendations")
 st.write(recommendations)
+# Send the recommendations to Slack
 send_to_slack(recommendations)
