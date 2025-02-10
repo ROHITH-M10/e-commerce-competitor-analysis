@@ -218,8 +218,8 @@ st.subheader("Competitor Data")
 # Display the last 5 rows of the competitor data
 st.table(product_data.tail(5))
 
-# display chart of competitor data
-fig = px.line(product_data, x=product_data.index, y='price', title='Price Trend Over Time')
+# display chart of competitor data for the selected product with x-axis as date and y-axis as price
+fig = px.line(product_data, x='date', y='price', title='Price Trend Over Time', labels={'date':'Date', 'price':'Price (in Rupees)'})
 st.plotly_chart(fig)
 
 # Sentiment Analysis of Customer Reviews
