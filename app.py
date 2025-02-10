@@ -3,7 +3,7 @@ import plotly.express as px  # For visualizing data with interactive plots
 import requests  # For making HTTP requests (e.g., sending Slack messages, API calls)
 import streamlit as st  # For creating the interactive dashboard
 # from openai import AzureOpenAI  # (Commented out) for using OpenAI models via Azure
-from sklearn.ensemble import RandomForestRegressor  # Machine learning model for price prediction
+# from sklearn.ensemble import RandomForestRegressor  # Machine learning model for price prediction
 from sklearn.model_selection import train_test_split  # Splitting data into training and testing
 from statsmodels.tsa.arima.model import ARIMA  # ARIMA model for time series forecasting
 from transformers import pipeline  # For sentiment analysis using NLP models
