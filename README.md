@@ -147,17 +147,3 @@ This project is a comprehensive **E-commerce Competitor Strategy Dashboard** des
 </div>
 
 
----
-
-## License
-This project is licensed under the MIT License.
-
----
-
-
-## Acknowledgments
-- [Streamlit](https://streamlit.io/) for interactive dashboards.
-- [Hugging Face](https://huggingface.co/) for NLP models.
-- [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/) for web scraping.
-- [OpenAI](https://openai.com/) for GPT-based strategy generation.
-
