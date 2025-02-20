@@ -64,7 +64,7 @@ This project is a comprehensive **E-commerce Competitor Strategy Dashboard** des
 - **`app.py`**: Main Streamlit app integrating data loading, visualization, sentiment analysis, forecasting, and strategy generation.
 
 ### 2. **Scraper Code**
-- **`scraper.ipynb`**: Scrapes competitor product data and reviews from e-commerce platforms and saves them as CSV files.
+- **`scraper.py`**: Scrapes competitor product data and reviews from e-commerce platforms and saves them as CSV files.
 
 ### 3. **Data Files**
 - **`competitor_data.csv`**: Contains scraped competitor data with fields:
@@ -83,7 +83,7 @@ This project is a comprehensive **E-commerce Competitor Strategy Dashboard** des
 ### Prerequisites
 - Python 3.8 or above
 - Libraries:
-  - `pandas`, `numpy`, `streamlit`, `plotly`, `requests`, `beautifulsoup4`,`Selenium`, `scikit-learn`, `statsmodels`, `transformers`
+  - `pandas`, `numpy`, `streamlit`, `plotly`, `requests`, `beautifulsoup4`,`selenium`, `scikit-learn`, `statsmodels`, `transformers`
 - API keys for:
   - OpenAI (Groq API)
   - Slack Webhook
