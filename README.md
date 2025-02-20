@@ -83,7 +83,7 @@ This project is a comprehensive **E-commerce Competitor Strategy Dashboard** des
 ### Prerequisites
 - Python 3.8 or above
 - Libraries:
-  - `pandas`, `numpy`, `streamlit`, `plotly`, `requests`, `beautifulsoup4`, `scikit-learn`, `statsmodels`, `transformers`
+  - `pandas`, `numpy`, `streamlit`, `plotly`, `requests`, `beautifulsoup4`,`Selenium`, `scikit-learn`, `statsmodels`, `transformers`
 - API keys for:
   - OpenAI (Groq API)
   - Slack Webhook
